@@ -1,72 +1,320 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Poké Battle API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API REST em **Laravel** para consultar Pokémon e simular batalhas usando dados da [PokeAPI](https://pokeapi.co/). O projeto **não utiliza banco de dados**: toda informação é obtida em tempo real da API externa.
 
-## API Pokémon (teste técnico)
+Desenvolvido como back-end de um teste técnico, com respostas padronizadas e testes automatizados.
 
-Back-end Laravel que consome a [PokeAPI](https://pokeapi.co/) e expõe batalha entre dois Pokémon.
+---
 
-- Documentação da API e **orientações para o front React**: [`docs/FRONTEND.md`](docs/FRONTEND.md)
-- Testes: `php artisan test`
+## Sumário
 
-### Endpoints rápidos
+- [Funcionalidades](#funcionalidades)
+- [Requisitos](#requisitos)
+- [Instalação](#instalação)
+- [Configuração](#configuração)
+- [Executando o projeto](#executando-o-projeto)
+- [Uso da API](#uso-da-api)
+- [Regras da batalha](#regras-da-batalha)
+- [Testes automatizados](#testes-automatizados)
+- [Estrutura do projeto](#estrutura-do-projeto)
+- [Licença](#licença)
 
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| `GET` | `/api/{name}` | Detalhes de um Pokémon |
-| `GET` | `/api/battle/{name1}/{name2}` | Batalha (vence quem tiver maior HP — `stats[0]`) |
+---
 
-## About Laravel
+## Funcionalidades
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Consulta de Pokémon por nome (`GET /api/{name}`)
+- Batalha entre dois Pokémon por comparação de HP (`GET /api/battle/{name1}/{name2}`)
+- Envelope JSON padronizado para sucesso e erro (`ApiResponse`)
+- Integração com PokeAPI via `PokemonService`
+- Testes unitários e de feature com [Pest](https://pestphp.com/) e `Http::fake()`
+- Configuração sem banco de dados (sessão, cache e fila em arquivo/sync)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Requisitos
 
-## Learning Laravel
+| Ferramenta | Versão mínima |
+|------------|----------------|
+| PHP        | 8.3            |
+| Composer   | 2.x            |
+| Extensões PHP | `curl`, `mbstring`, `openssl`, `pdo`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath` |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Instalação
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### 1. Clonar o repositório
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone <url-do-repositorio> teste-ateliware
+cd teste-ateliware
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 2. Instalar dependências PHP
 
-## Contributing
+```bash
+composer install
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 3. Criar o arquivo de ambiente
 
-## Code of Conduct
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 4. (Opcional) Ajustar permissões de escrita
 
-## Security Vulnerabilities
+```bash
+chmod -R 775 storage bootstrap/cache
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Não é necessário rodar `php artisan migrate` — o projeto não persiste dados localmente.
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Configuração
+
+Edite o arquivo `.env` conforme o ambiente:
+
+| Variável | Descrição | Padrão |
+|----------|-----------|--------|
+| `APP_URL` | URL base da aplicação | `http://localhost` |
+| `API_BASE_URL` | Base da PokeAPI | `https://pokeapi.co/api` |
+
+### Exemplo `.env` para desenvolvimento local
+
+```env
+APP_URL=http://localhost:8000
+API_BASE_URL=https://pokeapi.co/api
+```
+
+### Banco de dados
+
+Não é utilizado. As variáveis `DB_*` permanecem comentadas no `.env.example`. Sessão e cache usam driver `file`; fila usa `sync`.
+
+---
+
+## Executando o projeto
+
+### Servidor de desenvolvimento
+
+```bash
+php artisan serve
+```
+
+A API ficará disponível em: **http://localhost:8000**
+
+Health check do Laravel: `GET http://localhost:8000/up`
+
+### Limpar cache de configuração (após alterar `.env`)
+
+```bash
+php artisan config:clear
+```
+
+---
+
+## Uso da API
+
+**Base URL:** `http://localhost:8000/api`
+
+Todas as respostas seguem o envelope abaixo.
+
+### Envelope de resposta
+
+**Sucesso:**
+
+```json
+{
+  "success": true,
+  "message": "Mensagem legível",
+  "data": { }
+}
+```
+
+**Erro:**
+
+```json
+{
+  "success": false,
+  "message": "Falha ao consultar a PokeAPI.",
+  "data": null,
+  "errors": {
+    "pokeapi": "Descrição do erro"
+  }
+}
+```
+
+Sempre verifique o campo `success` antes de consumir `data`.
+
+---
+
+### Listar / buscar um Pokémon
+
+```http
+GET /api/{name}
+```
+
+| Parâmetro | Local | Descrição |
+|-----------|--------|-----------|
+| `name` | path | Nome do Pokémon em minúsculas (ex.: `pikachu`, `charizard`) |
+
+**Exemplo com cURL:**
+
+```bash
+curl -s http://localhost:8000/api/pikachu | jq
+```
+
+**Resposta (200):**
+
+```json
+{
+  "success": true,
+  "message": "Pokémon recuperado com sucesso.",
+  "data": {
+    "id": 25,
+    "name": "pikachu",
+    "sprites": { "..." : "..." },
+    "stats": [
+      { "base_stat": 35, "stat": { "name": "hp" } },
+      { "base_stat": 55, "stat": { "name": "attack" } }
+    ]
+  }
+}
+```
+
+**Erros comuns:**
+
+| HTTP | Situação |
+|------|----------|
+| 404 | Pokémon inexistente na PokeAPI |
+| 502 | Falha de comunicação com a PokeAPI |
+
+---
+
+### Batalha entre dois Pokémon
+
+```http
+GET /api/battle/{pokemonName1}/{pokemonName2}
+```
+
+| Parâmetro | Local | Descrição |
+|-----------|--------|-----------|
+| `pokemonName1` | path | Primeiro lutador |
+| `pokemonName2` | path | Segundo lutador |
+
+**Exemplo com cURL:**
+
+```bash
+curl -s http://localhost:8000/api/battle/pikachu/charmander | jq
+```
+
+**Resposta — vitória (200):**
+
+```json
+{
+  "success": true,
+  "message": "Pokémon pikachu venceu.",
+  "data": [ "... array de stats do vencedor ..." ]
+}
+```
+
+**Resposta — empate (200):**
+
+```json
+{
+  "success": true,
+  "message": "Empate.",
+  "data": {
+    "message": "Empate entre os Pokémons.",
+    "pokemon1": { "... payload completo ..." },
+    "pokemon2": { "... payload completo ..." }
+  }
+}
+```
+
+**Resposta — Pokémon não encontrado (404):**
+
+```json
+{
+  "success": false,
+  "message": "Falha ao consultar a PokeAPI.",
+  "data": null,
+  "errors": {
+    "pokeapi": "Pokémon não encontrado."
+  }
+}
+```
+
+> **Nota:** o formato de `data` varia entre empate e vitória. Para obter o payload completo de cada lutador, use `GET /api/{name}` antes ou depois da batalha.
+
+---
+
+## Regras da batalha
+
+1. São buscados os dois Pokémon na PokeAPI.
+2. Compara-se o **primeiro stat** do array (`stats[0]`, em geral **HP** / `base_stat`).
+3. Se **todos** os stats forem iguais entre os dois → **empate**.
+4. Se o HP do Pokémon 1 for maior → vitória do Pokémon 1.
+5. Caso contrário → vitória do Pokémon 2.
+
+Nomes devem ser enviados em **minúsculas**, como na PokeAPI (`mr-mime`, `pikachu`).
+
+---
+
+## Testes automatizados
+
+O projeto usa **Pest** com suítes **Unit** e **Feature**. As chamadas à PokeAPI são simuladas com `Http::fake()` — os testes não dependem de internet.
+
+```bash
+# Todos os testes
+php artisan test
+
+# Apenas unitários
+php artisan test --testsuite=Unit
+
+# Apenas feature (endpoints HTTP)
+php artisan test --testsuite=Feature
+```
+
+**Cobertura principal:**
+
+| Arquivo | O que valida |
+|---------|----------------|
+| `tests/Unit/ApiResponseTest.php` | Envelope JSON padronizado |
+| `tests/Unit/PokemonServiceTest.php` | Integração HTTP com PokeAPI |
+| `tests/Feature/PokemonApiTest.php` | Endpoints `/api/{name}` e `/api/battle/...` |
+
+---
+
+## Estrutura do projeto
+
+```text
+app/
+├── Http/
+│   ├── Controllers/
+│   │   └── PokemonController.php   # Endpoints index e battle
+│   ├── Responses/
+│   │   └── ApiResponse.php         # Envelope success/error
+│   └── Services/
+│       └── PokemonService.php      # Cliente HTTP PokeAPI
+├── Providers/
+│   └── AppServiceProvider.php
+routes/
+├── api.php                         # Rotas /api/*
+bootstrap/
+└── app.php                         # Exception handler da API
+tests/
+├── Feature/PokemonApiTest.php
+└── Unit/
+    ├── ApiResponseTest.php
+    └── PokemonServiceTest.php
+```
+
+---
+
+## Licença
+
+Este projeto utiliza o framework [Laravel](https://laravel.com), licenciado sob [MIT](https://opensource.org/licenses/MIT).
