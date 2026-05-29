@@ -7,6 +7,20 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## API Pokémon (teste técnico)
+
+Back-end Laravel que consome a [PokeAPI](https://pokeapi.co/) e expõe batalha entre dois Pokémon.
+
+- Documentação da API e **orientações para o front React**: [`docs/FRONTEND.md`](docs/FRONTEND.md)
+- Testes: `php artisan test`
+
+### Endpoints rápidos
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| `GET` | `/api/{name}` | Detalhes de um Pokémon |
+| `GET` | `/api/battle/{name1}/{name2}` | Batalha (vence quem tiver maior HP — `stats[0]`) |
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
