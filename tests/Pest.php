@@ -18,6 +18,8 @@ pest()->extend(TestCase::class)
  // ->use(RefreshDatabase::class)
     ->in('Feature');
 
+pest()->extend(TestCase::class)->in('Unit');
+
 /*
 |--------------------------------------------------------------------------
 | Expectations
@@ -44,7 +46,14 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+function pokemonApiPayload(string $name = 'pikachu', int $hp = 35): array
 {
-    // ..
+    return [
+        'id' => 25,
+        'name' => $name,
+        'stats' => [
+            ['base_stat' => $hp, 'stat' => ['name' => 'hp']],
+            ['base_stat' => 55, 'stat' => ['name' => 'attack']],
+        ],
+    ];
 }
