@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'pokeapi' => [
+        'base_url' => env('API_BASE_URL', 'https://pokeapi.co/api'),
+    ],
+
+    'http' => [
+        'verify_ssl' => filter_var(env('HTTP_VERIFY_SSL', true), FILTER_VALIDATE_BOOLEAN),
+    ],
+
 ];
