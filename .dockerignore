@@ -1,0 +1,38 @@
+# Dependências e artefatos que são reconstruídos dentro da imagem
+/vendor
+/node_modules
+/public/build
+/public/hot
+/public/storage
+
+# Ambiente e segredos (gerados/injetados em runtime)
+.env
+.env.backup
+.env.production
+/storage/*.key
+
+# Logs e caches voláteis
+*.log
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+.phpunit.result.cache
+/.phpunit.cache
+
+# Git e ferramentas de IDE
+.git
+.gitignore
+.idea
+.vscode
+.zed
+.fleet
+
+# Documentação e testes não precisam ir para a imagem de runtime
+/docs
+/tests
+
+# Frontend (não usado pela API)
+package.json
+package-lock.json
+vite.config.js
