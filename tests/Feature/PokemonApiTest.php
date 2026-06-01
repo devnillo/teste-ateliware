@@ -101,3 +101,15 @@ test('GET /api/battle retorna 404 quando pokemon nao existe', function () {
             ],
         ]);
 });
+
+test('nomes sao normalizados para minusculas antes da consulta', function () {
+    Http::fake([
+        'https://pokeapi.co/api/v2/pokemon/pikachu' => Http::response(pokemonApiPayload('pikachu'), 200),
+    ]);
+
+    $this->getJson('/api/PIKACHU')
+        ->assertOk()
+        ->assertJson(['success' => true]);
+
+    Http::assertSent(fn ($request) => $request->url() === 'https://pokeapi.co/api/v2/pokemon/pikachu');
+});
