@@ -17,6 +17,7 @@ Desenvolvido como back-end de um teste técnico, com respostas padronizadas e te
 - [Regras da batalha](#regras-da-batalha)
 - [Testes automatizados](#testes-automatizados)
 - [Estrutura do projeto](#estrutura-do-projeto)
+- [Front-end — batalha](#front-end--batalha)
 - [Licença](#licença)
 
 ---
@@ -312,6 +313,19 @@ tests/
     ├── ApiResponseTest.php
     └── PokemonServiceTest.php
 ```
+
+---
+
+## Front-end — batalha
+
+Guia com contrato da API, tipos TypeScript, hook React e dicas de UX para a tela de duelo:
+
+👉 **[docs/FRONTEND-BATALHA.md](docs/FRONTEND-BATALHA.md)**
+
+Resumo do fluxo:
+
+1. (Opcional) `GET /api/{name}` para preview dos cards.
+2. `GET /api/battle/{name1}/{name2}` para o resultado (`message` + `data.pokemon1` / `data.pokemon2`).
 
 ---
 
