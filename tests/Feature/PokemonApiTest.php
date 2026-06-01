@@ -67,7 +67,7 @@ test('GET /api/battle retorna vitoria do primeiro pokemon', function () {
             'success' => true,
             'message' => 'Pokémon pikachu venceu.',
         ])
-        ->assertJsonPath('data.0.base_stat', 60);
+        ->assertJsonPath('data.pokemon1.stats.0.base_stat', 60);
 });
 
 test('GET /api/battle retorna vitoria do segundo pokemon', function () {
@@ -82,7 +82,23 @@ test('GET /api/battle retorna vitoria do segundo pokemon', function () {
             'success' => true,
             'message' => 'Pokémon charmander venceu.',
         ])
-        ->assertJsonPath('data.name', 'charmander');
+        ->assertJsonPath('data.pokemon2.name', 'charmander');
+});
+
+test('GET /api/{name} retorna 404 quando pokemon nao existe', function () {
+    Http::fake([
+        'https://pokeapi.co/api/v2/pokemon/pikachua' => Http::response(null, 404),
+    ]);
+
+    $this->getJson('/api/pikachua')
+        ->assertNotFound()
+        ->assertJson([
+            'success' => false,
+            'message' => 'Falha ao consultar a PokeAPI.',
+            'errors' => [
+                'pokeapi' => 'Pokémon não encontrado.',
+            ],
+        ]);
 });
 
 test('GET /api/battle retorna 404 quando pokemon nao existe', function () {
@@ -97,7 +113,24 @@ test('GET /api/battle retorna 404 quando pokemon nao existe', function () {
             'success' => false,
             'message' => 'Falha ao consultar a PokeAPI.',
             'errors' => [
-                'pokeapi' => 'Pokémon não encontrado.',
+                'pokeapi' => "Pokémon 'inexistente' não encontrado.",
+            ],
+        ]);
+});
+
+test('GET /api/battle indica os dois nomes quando ambos sao invalidos', function () {
+    Http::fake([
+        'https://pokeapi.co/api/v2/pokemon/foo' => Http::response(null, 404),
+        'https://pokeapi.co/api/v2/pokemon/bar' => Http::response(null, 404),
+    ]);
+
+    $this->getJson('/api/battle/foo/bar')
+        ->assertNotFound()
+        ->assertJson([
+            'success' => false,
+            'message' => 'Falha ao consultar a PokeAPI.',
+            'errors' => [
+                'pokeapi' => "Pokémons não encontrados: 'foo', 'bar'.",
             ],
         ]);
 });
